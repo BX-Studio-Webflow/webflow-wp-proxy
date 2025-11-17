@@ -11,8 +11,50 @@
  * Learn more at https://developers.cloudflare.com/workers/
  */
 
+interface Env {
+	WEBFLOW_URL: string;
+	WORDPRESS_URL: string;
+}
+
 export default {
-	async fetch(request, env, ctx): Promise<Response> {
-		return new Response('Hello World!');
+	async fetch(request, env): Promise<Response> {
+		const url = new URL(request.url);
+
+		// Define priorities
+		const WEBFLOW_ROUTES = [
+			'/', // landing page
+			'/blog', // blog index
+			'/blog/', // normalized
+		];
+
+		const path = url.pathname;
+
+		// Check if Webflow route
+		const isWebflow = WEBFLOW_ROUTES.includes(path) || path.startsWith('/blog/');
+
+		const target = isWebflow ? env.WEBFLOW_URL : env.WORDPRESS_URL;
+
+		// Build the new proxied URL
+		const targetURL = new URL(path + url.search, target);
+
+		// Clone headers, strip hop-by-hop headers
+		const newHeaders = new Headers(request.headers);
+		newHeaders.set('host', targetURL.hostname);
+
+		const response = await fetch(targetURL, {
+			method: request.method,
+			headers: newHeaders,
+			body: request.method !== 'GET' && request.method !== 'HEAD' ? request.body : null,
+			redirect: 'follow',
+		});
+
+		// Ensure correct CORS, security & caching
+		const resHeaders = new Headers(response.headers);
+		resHeaders.set('x-proxy-origin', isWebflow ? 'webflow' : 'wordpress');
+
+		return new Response(response.body, {
+			status: response.status,
+			headers: resHeaders,
+		});
 	},
 } satisfies ExportedHandler<Env>;

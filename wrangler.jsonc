@@ -9,7 +9,26 @@
 	"compatibility_date": "2025-11-17",
 	"observability": {
 		"enabled": true
-	}
+	},
+	"env": {
+		"production": {
+		  "name": "webflow-wp-proxy",
+		  
+		  "vars": {
+			"ENVIRONMENT": "production",
+			"WEBFLOW_URL": "https://your-site.webflow.io",
+			"WORDPRESS_URL": "https://your-wordpress-site.com",
+		  },
+		},
+		"development": {
+		  "name": "webflow-wp-proxy",
+		  "vars": {
+			"ENVIRONMENT": "development",
+			"WEBFLOW_URL": "https://your-site.webflow.io",
+			"WORDPRESS_URL": "https://your-wordpress-site.com",
+		  },
+		},
+	  },
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
