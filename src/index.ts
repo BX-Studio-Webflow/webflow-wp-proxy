@@ -20,7 +20,7 @@ export default {
 	async fetch(request, env): Promise<Response> {
 		const url = new URL(request.url);
 
-		// Define priorities
+		// Define webflow routes priorities
 		const WEBFLOW_ROUTES = [
 			'/', // landing page
 			'/blog', // blog index
