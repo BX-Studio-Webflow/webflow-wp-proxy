@@ -3,7 +3,8 @@
 	"version": "0.0.0",
 	"private": true,
 	"scripts": {
-		"deploy": "wrangler deploy",
+		"deploy:production": "wrangler deploy --env production",
+		"deploy:developement": "wrangler deploy --env developement",
 		"dev": "wrangler dev",
 		"build": "wrangler deploy --dry-run",
 		"start": "wrangler dev",

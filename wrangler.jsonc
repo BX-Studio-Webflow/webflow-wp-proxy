@@ -15,7 +15,7 @@
 			"name": "webflow-wp-proxy",
 			"vars": {
 				"ENVIRONMENT": "production",
-				"WEBFLOW_URL": "https://ogyzgreen.webflow.io/",
+				"WEBFLOW_URL": "https://bx-notch-staging-05ed2a1ddc7c5d1128abdd.webflow.io/",
 				"OTHER_URL": "https://wordpress.com/",
 			},
 		},

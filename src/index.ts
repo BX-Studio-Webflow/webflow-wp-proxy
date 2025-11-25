@@ -14,20 +14,8 @@
 export default {
 	async fetch(request, env): Promise<Response> {
 		const url = new URL(request.url);
-
-		// Define webflow routes priorities
-		const WEBFLOW_ROUTES = [
-			'/', // landing page
-			'/blog', // blog index
-			'/blog/', // normalized
-		];
-
 		const path = url.pathname;
-
-		// Check if Webflow route
-		const isWebflow = WEBFLOW_ROUTES.includes(path) || path.startsWith('/blog/');
-
-		const target = isWebflow ? env.WEBFLOW_URL : env.OTHER_URL;
+		const target = env.WEBFLOW_URL;
 
 		// Build the new proxied URL
 		const newURL = `${path}${url.search}`;
@@ -49,7 +37,7 @@ export default {
 
 		// Ensure correct CORS, security & caching
 		const resHeaders = new Headers(response.headers);
-		resHeaders.set('x-proxy-origin', isWebflow ? 'webflow' : 'wordpress');
+		resHeaders.set('x-proxy-origin', 'webflow');
 
 		return new Response(response.body, {
 			status: response.status,
