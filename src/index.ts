@@ -12,7 +12,15 @@
  */
 
 const CDN_PREFIX = '/_wfcdn';
-const CDN_ORIGIN = 'https://cdn.prod.website-files.com';
+const JSDELIVR_PREFIX = '/_jsdelivr';
+const CLOUDFLARE_CDN_PREFIX = '/_cloudflarecdn';
+
+// CDN origin mappings
+const CDN_ORIGINS: Record<string, string> = {
+	[CDN_PREFIX]: 'https://cdn.prod.website-files.com',
+	[JSDELIVR_PREFIX]: 'https://cdn.jsdelivr.net',
+	[CLOUDFLARE_CDN_PREFIX]: 'https://static.cloudflareinsights.com',
+};
 
 // Common asset file extensions
 const ASSET_EXTENSIONS = ['.js', '.css', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.webp', '.avif', '.woff', '.woff2', '.ttf', '.eot', '.ico', '.json', '.map'];
@@ -27,38 +35,42 @@ export default {
 		const isAssetPath = ASSET_EXTENSIONS.some(ext => path.toLowerCase().endsWith(ext));
 
 		if (isAssetPath) {
-			// Try to proxy through CDN first
-			const originPath = path.startsWith(CDN_PREFIX) ? path.replace(CDN_PREFIX, '') : path;
-			const assetURL = new URL(`${originPath}${url.search}`, CDN_ORIGIN);
-			const assetResponse = await fetch(assetURL, {
-				method: 'GET',
-				redirect: 'follow',
-				cf: {
-					cacheEverything: true,
-					cacheTtl: 31_536_000,
-				},
-			});
+			// Check if path matches any CDN prefix
+			for (const [prefix, origin] of Object.entries(CDN_ORIGINS)) {
+				if (path.startsWith(prefix + '/')) {
+					const originPath = path.replace(prefix, '');
+					const assetURL = new URL(`${originPath}${url.search}`, origin);
+					const assetResponse = await fetch(assetURL, {
+						method: 'GET',
+						redirect: 'follow',
+						cf: {
+							cacheEverything: true,
+							cacheTtl: 31_536_000,
+						},
+					});
 
-			// Verify it's actually an asset by content-type
-			const contentType = assetResponse.headers.get('content-type') || '';
-			const isAssetType = contentType.includes('javascript') ||
-				contentType.includes('css') ||
-				contentType.includes('image/') ||
-				contentType.includes('font/') ||
-				contentType.includes('application/font') ||
-				contentType.includes('application/json') ||
-				contentType.includes('application/octet-stream');
+					// Verify it's actually an asset by content-type
+					const contentType = assetResponse.headers.get('content-type') || '';
+					const isAssetType = contentType.includes('javascript') ||
+						contentType.includes('css') ||
+						contentType.includes('image/') ||
+						contentType.includes('font/') ||
+						contentType.includes('application/font') ||
+						contentType.includes('application/json') ||
+						contentType.includes('application/octet-stream');
 
-			if (isAssetType) {
-				const assetHeaders = new Headers(assetResponse.headers);
-				assetHeaders.set('x-proxy-origin', 'webflow-cdn');
-				assetHeaders.set('cache-control', 'public, max-age=31536000, immutable');
-				assetHeaders.delete('content-length');
+					if (isAssetType) {
+						const assetHeaders = new Headers(assetResponse.headers);
+						assetHeaders.set('x-proxy-origin', prefix === CDN_PREFIX ? 'webflow-cdn' : 'jsdelivr-cdn');
+						assetHeaders.set('cache-control', 'public, max-age=31536000, immutable');
+						assetHeaders.delete('content-length');
 
-				return new Response(assetResponse.body, {
-					status: assetResponse.status,
-					headers: assetHeaders,
-				});
+						return new Response(assetResponse.body, {
+							status: assetResponse.status,
+							headers: assetHeaders,
+						});
+					}
+				}
 			}
 		}
 
@@ -92,7 +104,13 @@ export default {
 		if (resHeaders.get('content-type')?.includes('text/html')) {
 			console.log('rewriting HTML');
 			const originalHTML = await response.text();
-			const rewrittenHTML = originalHTML.replaceAll(CDN_ORIGIN, CDN_PREFIX);
+			let rewrittenHTML = originalHTML;
+
+			// Rewrite all CDN origins to their prefixes
+			for (const [prefix, origin] of Object.entries(CDN_ORIGINS)) {
+				rewrittenHTML = rewrittenHTML.replaceAll(origin, prefix);
+			}
+
 			resHeaders.delete('content-length');
 
 			return new Response(rewrittenHTML, {
