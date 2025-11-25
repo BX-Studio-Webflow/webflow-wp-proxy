@@ -33,11 +33,16 @@ export default {
 			headers: newHeaders,
 			body: request.method !== 'GET' && request.method !== 'HEAD' ? request.body : null,
 			redirect: 'follow',
+			cf: {
+				cacheEverything: true,
+				cacheTtl: 31_536_000, // 1 year
+			},
 		});
 
 		// Ensure correct CORS, security & caching
 		const resHeaders = new Headers(response.headers);
 		resHeaders.set('x-proxy-origin', 'webflow');
+		resHeaders.set('cache-control', 'public, max-age=31536000, immutable');
 
 		return new Response(response.body, {
 			status: response.status,
