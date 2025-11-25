@@ -18,7 +18,7 @@ Cloudflare Worker that proxies selected routes (homepage + blog) to Webflow whil
 2. Create `.dev.vars` in the project root (not in `src/`) with the target origins:
    ```
    WEBFLOW_URL=https://your-webflow-site.com/
-   WORDPRESS_URL=https://your-wordpress-site.com/
+   OTHER_URL=https://your-wordpress-site.com/
    ```
    These must be absolute URLs including the protocol. The example file in the repo already points to the demo sites we use for local testing.
 3. Run the Worker dev server:
@@ -29,7 +29,7 @@ Cloudflare Worker that proxies selected routes (homepage + blog) to Webflow whil
 
 ## Deployment
 
-1. Ensure `wrangler.jsonc` has the correct `WEBFLOW_URL` / `WORDPRESS_URL` values for each environment or set them via Cloudflare dashboard.
+1. Ensure `wrangler.jsonc` has the correct `WEBFLOW_URL` / `OTHER_URL` values for each environment or set them via Cloudflare dashboard.
 2. Deploy:
    ```bash
    pnpm run deploy

@@ -13,7 +13,7 @@
 
 interface Env {
 	WEBFLOW_URL: string;
-	WORDPRESS_URL: string;
+	OTHER_URL: string;
 }
 
 export default {
@@ -32,12 +32,12 @@ export default {
 		// Check if Webflow route
 		const isWebflow = WEBFLOW_ROUTES.includes(path) || path.startsWith('/blog/');
 
-		const target = isWebflow ? env.WEBFLOW_URL : env.WORDPRESS_URL;
+		const target = isWebflow ? env.WEBFLOW_URL : env.OTHER_URL;
 
 		// Build the new proxied URL
 		const newURL = `${path}${url.search}`;
 
-		console.log({ newURL, target, env: { WORDPRESS_URL: env.WORDPRESS_URL, WEBFLOW_URL: env.WEBFLOW_URL } });
+		console.log({ newURL, target, env: { OTHER_URL: env.OTHER_URL, WEBFLOW_URL: env.WEBFLOW_URL } });
 
 		const targetURL = new URL(newURL, target);
 

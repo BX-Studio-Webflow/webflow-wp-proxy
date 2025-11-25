@@ -12,23 +12,22 @@
 	},
 	"env": {
 		"production": {
-		  "name": "webflow-wp-proxy",
-		  
-		  "vars": {
-			"ENVIRONMENT": "production",
-			"WEBFLOW_URL": "https://ogyzgreen.webflow.io/",
-			"WORDPRESS_URL": "https://wordpress.com/",
-		  },
+			"name": "webflow-wp-proxy",
+			"vars": {
+				"ENVIRONMENT": "production",
+				"WEBFLOW_URL": "https://ogyzgreen.webflow.io/",
+				"OTHER_URL": "https://wordpress.com/",
+			},
 		},
 		"development": {
-		  "name": "webflow-wp-proxy",
-		  "vars": {
-			"ENVIRONMENT": "development",
-			"WEBFLOW_URL": "https://ogyzgreen.webflow.io/",
-			"WORDPRESS_URL": "https://wordpress.com/",
-		  },
+			"name": "webflow-wp-proxy",
+			"vars": {
+				"ENVIRONMENT": "development",
+				"WEBFLOW_URL": "https://ogyzgreen.webflow.io/",
+				"OTHER_URL": "https://wordpress.com/",
+			},
 		},
-	  },
+	},
 	/**
 	 * Smart Placement
 	 * Docs: https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
